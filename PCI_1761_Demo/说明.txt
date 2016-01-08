@@ -1,0 +1,9 @@
+本例程为PCI-1761的IO操作。
+
+本例程运行前需安装驱动：DAQNavi_PCI1761_PCM3761I_MIC3761_3.2.6.0.exe
+
+必要资源将放在resource.zip中
+
+
+@V·Shawn
+@2015-12-13

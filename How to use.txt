@@ -1,0 +1,92 @@
+chs：
+
+使用前请安装采集卡驱动：    DAQNavi_PCI1761_PCM3761I_MIC3761_3.2.6.0.exe;
+
+
+1.将API文件夹下lib文件添加到工程引用
+2.将API文件夹下其余文件放入项目资源管理器
+3.在项目核实的位置初始化pci1761类，并执行init()方法，并调用其下方法。
+
+注1：pci1761类可多次初始化，但其所有实例都指向统一块PCI-1761采集卡。
+
+注2：API默认指向采集卡“PCI-1761,BID#0”，需要修改所使用的采集卡时，请修改PCI1761.h中的宏定义
+
+#ifndef deviceDescription
+#define  deviceDescription  L"PCI-1761,BID#0"
+#endif 
+
+具体情况请阅读PCI1761的官方API说明文档。
+若项目中需要用到多块采集卡，请进行二次开发或复制一个新的PCI1761类到项目中并修改配置。
+
+
+
+en：
+
+You should setup PCI-1761 driver first:    DAQNavi_PCI1761_PCM3761I_MIC3761_3.2.6.0.exe;
+
+1.Add all files in folder "API" to your project.
+2.Init class "pci1761" and use it's function.
+
+P.S. 1: You can create as many pci1761 entities as you want.But every entity will control the same PCI-1761.
+P.S. 2: This api will control "PCI-1761,BID#0",if you want to control a different please edit PCI1761.h：
+
+#ifndef deviceDescription
+#define  deviceDescription  L"PCI-1761,BID#0"
+#endif 
+
+modify "PCI-1761,BID#0" to what you want.
+
+If you don't know how to do this, you can read the PCI-1761 document first.
+
+
+
+
+
+
+
+Code：
+
+	PCI1761 pci1761;
+	//init PCI-1761,success return true.
+	if (pci1761.init())
+	{
+		//输出功能 Output function
+		pci1761.SetR(0x00);//设置所有输出继电器断开,set all relays open.
+		SLEEP(100);
+		pci1761.SetR(0xFF);//设置所有输出继电器闭合,set all relays close
+		SLEEP(100);
+		pci1761.SetR(0x01);//设置0号继电器闭合，其余断开,set relay 0 close,relay1-relay7 open.
+		SLEEP(100);
+
+		pci1761.SetR(2, 1);//2号继电器设置为闭合，其余保持原状,set relay 2 close,others keep their status.
+		SLEEP(100);
+
+		pci1761.SetR(5, 0);//5号继电器设置为断开，其余保持原状,set relay 5 open,others keep their status.
+		SLEEP(100);
+
+		do
+		{
+			//获取IDI0的上升沿，遇到上升沿返回true
+			//if IDI0 gets a Rising Edge return true
+			if (pci1761.GetRisingEdgeIDI(0))
+				printf("IDI0 RisingEdge\r\n");
+
+			//获取IDI1的下降沿，遇到下降沿返回true
+			//if IDI1 gets a TrailingEdge return true
+			if (pci1761.GetTrailingEdgeIDI(1))
+				printf("IDI1 TrailingEdge\r\n");
+
+			//获取7号输入端口的电平状态，高电平返回true.
+			//Get IDI7 status, high return true, low return false.
+			if (pci1761.GetIDI(7))
+				printf("IDI7 is high\r\n");
+			else
+				printf("IDI7 is low\r\n");
+		} while (true);
+	}
+
+
+
+
+@V·Shawn
+@2016-1-8
