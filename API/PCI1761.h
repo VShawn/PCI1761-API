@@ -65,9 +65,9 @@ public:
 		instantDiCtrl->Read(0, 1, bufferForReading);
 		char x = 0x01 << ID;
 		if ((bufferForReading[readPort] & x) != 0x00)
-			return true;
+			return (!PCI1761::Inverter);//true
 		else
-			return false;
+			return PCI1761::Inverter;
 	}
 	//获取IDI X的上升沿，返回true时触发 
 	//输入ID 0-7
@@ -151,7 +151,7 @@ public:
 		PCI1761::instantDoCtrl->Write(0, 1, bufferForWriting);		//ret = instantDoCtrl->Write(startPort, portCount, bufferForWriting);
 	}
 
-
+	static bool Inverter;//是否反相，默认为false。为true时，GetIDI高电平返回false，低电平返回true
 private:
 	static int entityCount;//有几个实例在运行，只有为0时才释放1761句柄
 	static bool hasOpened;
@@ -175,11 +175,12 @@ private:
 		byte bufferForReading[2] = { 0 };
 		instantDiCtrl->Read(0, 1, bufferForReading);
 
-		last = bufferForReading[readPort];
 		char x = 0x01 << ID;
+		last = (last & ~x ) | (bufferForReading[readPort] & x);
+
 		if ((bufferForReading[readPort] & x) != 0x00)
-			return true;
+			return (!PCI1761::Inverter);//true
 		else
-			return false;
+			return PCI1761::Inverter;
 	}
 };
